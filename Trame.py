@@ -10,9 +10,9 @@ class Ethernet:
         self.type = trame[24:]
 
     def printEth(self):
-        print("dst -> ", self.dst_mac)
-        print("src -> ", self.src_mac)
-        print("type -> ", self.type)
+        print("dst ->", self.dst_mac)
+        print("src ->", self.src_mac)
+        print("type ->", self.type)
 
 class IPv4:
     def __init__(self):
@@ -33,7 +33,6 @@ class IPv4:
         self.option = None
 
     def decodeIPv4(self, trame):
-        print(trame)
         self.version = trame[0]
         self.hlen = trame[1]
         self.ToS = trame[2:4]
@@ -45,7 +44,7 @@ class IPv4:
         self.checksum = trame[20:24]
         self.src_ip = trame[24:32]
         self.dst_ip = trame[32:40]
-        if self.hlen == '4':
+        if self.hlen == '5':
             self.option = None
         else:
             self.option = trame[40:]
@@ -53,27 +52,30 @@ class IPv4:
 
     def offset(self, trame):
         tramebin = str(bin(int(trame, 16)))[2:]
-        #print(tramebin)
-        self.DF = tramebin[0]
-        self.MF = tramebin[1]
-        self.fragment_offset = tramebin[2:]
+        nb_zeros = 16 - len(tramebin)
+        while nb_zeros != 0:
+            tramebin = "0" + tramebin
+            nb_zeros -= 1
+        self.DF = tramebin[1]
+        self.MF = tramebin[2]
+        self.fragment_offset = tramebin[3:]
 
     def printIPv4(self):
-        print("version -> ", self.version)
-        print("hlen -> ", self.hlen)
-        print("Tos -> ", self.ToS)
-        print("total length -> ", str(int(self.len, base = 16)))
-        print("id -> ", self.id)
-        print("flags -> ", self.flags)
-        print("DF -> ", self.DF,)
-        print("MF -> ", self.MF)
-        print("fragment offset -> ", self.fragment_offset)
-        print("TTL -> ", self.TTL)
-        print("protocole -> ", self.protocole)
-        print("checksum -> ", self.checksum)
-        print("src ip -> ", self.src_ip)
-        print("dst ip -> ", self.dst_ip)
-        print("option -> ", self.option)
+        print("version ->", self.version)
+        print("hlen ->", int(self.hlen)*4, "bytes (", self.hlen, ")")
+        print("Tos ->", self.ToS)
+        print("total length ->", str(int(self.len, base = 16)))
+        print("id ->", self.id)
+        print("flags ->", self.flags)
+        print("DF ->", self.DF,)
+        print("MF ->", self.MF)
+        print("fragment offset ->", self.fragment_offset)
+        print("TTL ->", self.TTL)
+        print("protocole ->", self.protocole)
+        print("checksum ->", self.checksum)
+        print("src ip ->", self.src_ip)
+        print("dst ip ->", self.dst_ip)
+        print("option ->", self.option)
 
 class TCP:
     def __init__(self):
@@ -82,6 +84,7 @@ class TCP:
         self.seq_num = None
         self.ack_num = None
         self.THL = None
+        self.flags = None
         self.URG = None
         self.ACK = None
         self.PSH = None
@@ -91,9 +94,73 @@ class TCP:
         self.window = None
         self.checksum = None
         self.urgent_pointer = None
-        self.option = None
         self.option_type = None
         self.option_length = None
         self.option_value = None
     
-    #def decodeTCP(self, trame):
+    def decodeTCP(self, trame):
+        print(trame)
+        self.port_src = trame[:4]
+        self.port_dst = trame[4:8]
+        self.seq_num = trame[8:16]
+        self.ack_num = trame[16:24]
+        self.THL = trame[24]
+        self.flags = trame[25:28]
+        self.window = trame[28:32]
+        self.checksum = trame[32:36]
+        self.urgent_pointer = trame[36:40]
+        if self.THL == '5':
+            self.option_type = None
+            self.option_length = None
+            self.option_value = None
+        else:
+            self.option_type = trame[40:42]
+            self.option_length = trame[42:44]
+            print(self.option_length)
+            self.option_value = trame[44:(2*int(self.option_length, base = 16) - 4)]
+        self.setflags(self.flags)
+
+    def setflags(self, trame):
+        tramebin = str(bin(int(trame, 16)))[2:]
+        nb_zeros = 6 - len(tramebin)
+        while nb_zeros != 0:
+            tramebin = "0" + tramebin
+            nb_zeros -= 1
+        self.URG = tramebin[0]
+        self.ACK = tramebin[1]
+        self.PSH = tramebin[2]
+        self.RST = tramebin[3]
+        self.SYN = tramebin[4]
+        self.FIN = tramebin[5]
+
+    def printTPC(self):
+        print("port src ->", int(self.port_src, base = 16))
+        print("port dst ->", int(self.port_dst, base = 16))
+        print("sequence number ->", int(self.seq_num, base = 16)) # affichage en decimal
+        print("acknowledgment number ->", int(self.ack_num, base = 16)) # affichage en decimal
+        print("THL ->", int(self.THL)*4, "bytes (", self.THL, ")")
+        print("flags ->", self.flags)
+        print("URG ->", self.URG)
+        print("ACK ->", self.ACK)
+        print("PSH ->", self.PSH)
+        print("RST ->", self.RST)
+        print("SYN ->", self.SYN)
+        print("FIN ->", self.FIN)
+        print("Window ->", int(self.window, base = 16))
+        print("checksum ->", self.checksum)
+        print("urgent pointer ->", self.urgent_pointer)
+        print("option type ->", self.option_type)
+        print("option length ->", self.option_length)
+        print("option value ->", self.option_value)
+
+class HTTP:
+    def __init__(self):
+        self.string = None
+
+    def decodeHTTP(self, string):
+        self.string = bytes.fromhex(string).decode("ASCII").rstrip('\n')
+
+    def printHTTP(self):
+        print("------------------------------------------------------------\n")
+        print(self.string)
+        print("------------------------------------------------------------")
