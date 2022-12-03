@@ -1,3 +1,22 @@
+class Trame:
+    def __init__(self):
+        self.eth = None
+        self.ip = None
+        self.tcp = None
+        self.http = None
+
+    def setEth(self, eth):
+        self.eth = eth
+
+    def setIP(self, ip):
+        self.ip = ip
+
+    def setTCP(self, tcp):
+        self.tcp = tcp
+
+    def setHTTP(self, http):
+        self.http = http
+
 class Ethernet:
     def __init__(self):
         self.dst_mac = None
@@ -134,10 +153,6 @@ class TCP:
         j = 0
         len_op = len(trame)
         while i <= len_op -1:
-            print("len_op = ", len_op)
-            print("i = ", i)
-            print("j = ",j)
-            print(trame[i:i+2])
             if trame[i:i+2] == '00' or trame[i:i+2] == '01':
                 self.option_type.append(trame[i:i+2])
                 self.option_length.append(None)
@@ -146,7 +161,6 @@ class TCP:
             else:
                 self.option_type.append(trame[i:i+2])
                 self.option_length.append(trame[i+2:i+4])
-                print("option_length = ", 2*int(self.option_length[j], base = 16) - 4)
                 if 2*int(self.option_length[j], base = 16) - 4 == 0:
                     self.option_value.append(None)
                 else:
