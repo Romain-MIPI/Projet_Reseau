@@ -22,13 +22,13 @@ def decode_trame(file):
                         eth.printEth()
 
                         ip = IPv4()
-                        fin_ip = (28+(2*int(str_trame[29])*4))
+                        fin_ip = (28+(2*int(str_trame[29], base = 16)*4))
                         #print(str_trame[28:fin_ip])
                         ip.decodeIPv4(str_trame[28:fin_ip])
                         ip.printIPv4()
 
                         tcp = TCP()
-                        fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24])*4)
+                        fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
                         #print(str_trame[fin_ip:fin_tcp])
                         tcp.decodeTCP(str_trame[fin_ip:fin_tcp])
                         tcp.printTPC()
@@ -58,17 +58,17 @@ def decode_trame(file):
     eth.printEth()
 
     ip = IPv4()
-    #print("hlen = ", int(str_trame[29])*4)
-    fin_ip = (28+(2*int(str_trame[29]))*4)
+    #print("hlen = ", int(str_trame[29], base = 16)*4)
+    fin_ip = (28+(2*int(str_trame[29], base = 16))*4)
     #print(fin_ip)
     #print(str_trame[28:fin_ip])
     ip.decodeIPv4(str_trame[28:fin_ip])
     ip.printIPv4()
 
     tcp = TCP()
-    print(str_trame[fin_ip+24])
-    fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24])*4)
-    print(str_trame[fin_ip:fin_tcp])
+    #print(str_trame[fin_ip+24])
+    fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
+    #print(str_trame[fin_ip:fin_tcp])
     tcp.decodeTCP(str_trame[fin_ip:fin_tcp])
     tcp.printTPC()
 

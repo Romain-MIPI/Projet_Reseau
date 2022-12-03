@@ -62,7 +62,7 @@ class IPv4:
 
     def printIPv4(self):
         print("version ->", self.version)
-        print("hlen ->", int(self.hlen)*4, "bytes (", self.hlen, ")")
+        print("hlen ->", int(self.hlen, base = 16)*4, "bytes (", self.hlen, ")")
         print("Tos ->", self.ToS)
         print("total length ->", str(int(self.len, base = 16)))
         print("id ->", self.id)
@@ -70,7 +70,7 @@ class IPv4:
         print("DF ->", self.DF,)
         print("MF ->", self.MF)
         print("fragment offset ->", self.fragment_offset)
-        print("TTL ->", self.TTL)
+        print("TTL ->", int(self.TTL, base = 16))
         print("protocole ->", self.protocole)
         print("checksum ->", self.checksum)
         print("src ip ->", self.src_ip)
@@ -99,7 +99,6 @@ class TCP:
         self.option_value = None
     
     def decodeTCP(self, trame):
-        print(trame)
         self.port_src = trame[:4]
         self.port_dst = trame[4:8]
         self.seq_num = trame[8:16]
@@ -136,9 +135,9 @@ class TCP:
     def printTPC(self):
         print("port src ->", int(self.port_src, base = 16))
         print("port dst ->", int(self.port_dst, base = 16))
-        print("sequence number ->", int(self.seq_num, base = 16)) # affichage en decimal
-        print("acknowledgment number ->", int(self.ack_num, base = 16)) # affichage en decimal
-        print("THL ->", int(self.THL)*4, "bytes (", self.THL, ")")
+        print("sequence number ->", int(self.seq_num, base = 16))
+        print("acknowledgment number ->", int(self.ack_num, base = 16))
+        print("THL ->", int(self.THL, base = 16)*4, "bytes (", self.THL, ")")
         print("flags ->", self.flags)
         print("URG ->", self.URG)
         print("ACK ->", self.ACK)
