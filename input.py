@@ -1,26 +1,45 @@
-#print(int("ff", base = 16))
+from Trame import *
 
 def decode_trame(file):
     fichier = open(file, "r")
-    string = fichier.read()
-    list_trame = string.split("   ")
-    for trame in list_trame:
-        print("trame : " + trame)
-        traiter_trame(trame)
+    str_trame = ""
+    offset = ""
+    trame = ""
+    for ligne in fichier.readlines():
+        if ligne != '\n':
+            tab = ligne.split('   ')
+            offset = tab[0]
+            trame = tab[1]
+            if offset == "0000":
+                if str_trame != "":
+                    print(str_trame)
+                    eth = Ethernet()
+                    eth.decodeEth(str_trame[:28])
+                    print(str_trame[:28])
+                    eth.printEth()
 
-def traiter_trame(trame):
-    mac_dst = trame[0:17].replace(" ", ":")
-    mac_src = trame[18:35].replace(" ", ":")
-    print("src : " + mac_src)
-    print("dst : " + mac_dst)
-    trame_type = trame[36:41].replace(" ", "")
-    version = trame[42]
-    hlen = trame[43]
-    if trame_type == "0800":
-        print("type : IPv" + version + " (0x" + trame_type + ")")
-    else :
-        print("version = " + version)
-    print("header length : " + str(int(hlen, base=16)*4) + " bytes (" + hlen + ")")
+                    ip = IPv4()
+                    fin_ip = (28+(2*int(str_trame[29])*4))
+                    print(str_trame[28:fin_ip])
+                    ip.decodeIPv4(str_trame[28:fin_ip])
+                    ip.printIPv4()
+                    str_trame = trame.rstrip('\n').replace(" ", "")
+                else :
+                    str_trame += trame.rstrip('\n').replace(" ", "")
+            else:
+                str_trame += trame.rstrip('\n').replace(" ", "")
+    print(str_trame)
+    print(str_trame[:28])
+    eth = Ethernet()
+    eth.decodeEth(str_trame[:28])
+    eth.printEth()
 
+    ip = IPv4()
+    print("hlen = ", int(str_trame[29])*4)
+    fin_ip = (28+(2*int(str_trame[29]))*4)
+    print(fin_ip)
+    print(str_trame[28:fin_ip])
+    ip.decodeIPv4(str_trame[28:fin_ip])
+    ip.printIPv4()
 
-decode_trame("trame.txt")
+decode_trame("TCP.txt")

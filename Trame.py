@@ -33,39 +33,41 @@ class IPv4:
         self.option = None
 
     def decodeIPv4(self, trame):
+        print(trame)
         self.version = trame[0]
         self.hlen = trame[1]
         self.ToS = trame[2:4]
         self.len = trame[4:8]
         self.id = trame[8:12]
         self.flags = trame[12:16] 
-        self.offset(flags)
         self.TTL = trame[16:18]
         self.protocole = trame[18:20]
         self.checksum = trame[20:24]
         self.src_ip = trame[24:32]
         self.dst_ip = trame[32:40]
-        if hlen == '4':
+        if self.hlen == '4':
             self.option = None
         else:
-            self.option = trame[40:]  
+            self.option = trame[40:]
+        self.offset(self.flags)
 
     def offset(self, trame):
-        tramebin = str(bin(int(trame, 16)))
-        self.DF = tramebin[1]
-        self.MF = tramebin[2]
-        self.fragment_offset = tramebin[3:]
+        tramebin = str(bin(int(trame, 16)))[2:]
+        #print(tramebin)
+        self.DF = tramebin[0]
+        self.MF = tramebin[1]
+        self.fragment_offset = tramebin[2:]
 
     def printIPv4(self):
         print("version -> ", self.version)
         print("hlen -> ", self.hlen)
         print("Tos -> ", self.ToS)
-        print("total length -> ", self.len)
+        print("total length -> ", str(int(self.len, base = 16)))
         print("id -> ", self.id)
         print("flags -> ", self.flags)
-        print("DF -> ", self.DF, ".......")
-        print("MF -> .", self.MF, "......")
-        print("fragment offset -> ..", self.fragment_offset)
+        print("DF -> ", self.DF,)
+        print("MF -> ", self.MF)
+        print("fragment offset -> ", self.fragment_offset)
         print("TTL -> ", self.TTL)
         print("protocole -> ", self.protocole)
         print("checksum -> ", self.checksum)
@@ -94,5 +96,4 @@ class TCP:
         self.option_length = None
         self.option_value = None
     
-    def decodeTCP(self, trame):
-        
+    #def decodeTCP(self, trame):
