@@ -94,9 +94,9 @@ class TCP:
         self.window = None
         self.checksum = None
         self.urgent_pointer = None
-        self.option_type = None
-        self.option_length = None
-        self.option_value = None
+        self.option_type = []
+        self.option_length = []
+        self.option_value = []
     
     def decodeTCP(self, trame):
         self.port_src = trame[:4]
@@ -113,10 +113,7 @@ class TCP:
             self.option_length = None
             self.option_value = None
         else:
-            self.option_type = trame[40:42]
-            self.option_length = trame[42:44]
-            print(self.option_length)
-            self.option_value = trame[44:(2*int(self.option_length, base = 16) - 4)]
+            self.setoptions(trame[40:])
         self.setflags(self.flags)
 
     def setflags(self, trame):
@@ -131,6 +128,33 @@ class TCP:
         self.RST = tramebin[3]
         self.SYN = tramebin[4]
         self.FIN = tramebin[5]
+
+    def setoptions(self, trame):
+        i = 0
+        j = 0
+        len_op = len(trame)
+        while i <= len_op -1:
+            print("len_op = ", len_op)
+            print("i = ", i)
+            print("j = ",j)
+            print(trame[i:i+2])
+            if trame[i:i+2] == '00' or trame[i:i+2] == '01':
+                self.option_type.append(trame[i:i+2])
+                self.option_length.append(None)
+                self.option_value.append(None)
+                i += 2
+            else:
+                self.option_type.append(trame[i:i+2])
+                self.option_length.append(trame[i+2:i+4])
+                print("option_length = ", 2*int(self.option_length[j], base = 16) - 4)
+                if 2*int(self.option_length[j], base = 16) - 4 == 0:
+                    self.option_value.append(None)
+                else:
+                    self.option_value.append(trame[i+4:i+4+(2*int(self.option_length[j], base = 16) - 4)])
+                i += 4+2*int(self.option_length[j], base = 16) - 4
+            j += 1
+
+
 
     def printTPC(self):
         print("port src ->", int(self.port_src, base = 16))
