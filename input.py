@@ -82,4 +82,4 @@ def check_ascii(str):
             return False
     return True
 
-decode_trame("TCP_2.txt")
+decode_trame("TCP.txt")
