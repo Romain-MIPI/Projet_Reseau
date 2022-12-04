@@ -5,6 +5,7 @@ def decode_trame(file):
     fichier = open(file, "r")
     str_trame = ""
     offset = ""
+    offset_total = 0
     trame = ""
     list_trame = []
     for ligne in fichier.readlines():
@@ -47,49 +48,61 @@ def decode_trame(file):
 
                         #lecture trame suivant
                         str_trame = trame
+                        offset_total = 0
                     else :
                         # lecture premiere trame
                         str_trame = trame
                 else:
                     # offset n'est pas 0000 donc on continue de lire
                     str_trame += trame
+                if int(offset, base = 16) != offset_total:
+                    print("offset non compatible avec la trame")
+                    exit()
+                else:
+                    offset_total += int(len(trame)/2)
             else:
                 print(trame)
                 print("trame non compatible")
                 exit()
             
     #traitement derniere trame
-    #print(str_trame)
-    #print(str_trame[:28])
-    eth = Ethernet()
-    eth.decodeEth(str_trame[:28])
-    #eth.printEth()
+    if int(offset, base = 16) != int(offset_total - len(trame)/2): # - len(trame)/2 pour qu'il compte pas les octets de la derniere ligne
+        print("offset non compatible avec la trame")
+        exit()
+    else:
+        offset_total += int(len(trame)/2)
 
-    ip = IPv4()
-    #print("hlen = ", int(str_trame[29], base = 16)*4)
-    fin_ip = (28+(2*int(str_trame[29], base = 16))*4)
-    #print(fin_ip)
-    #print(str_trame[28:fin_ip])
-    ip.decodeIPv4(str_trame[28:fin_ip])
-    #ip.printIPv4()
+        #print(str_trame)
+        #print(str_trame[:28])
+        eth = Ethernet()
+        eth.decodeEth(str_trame[:28])
+        #eth.printEth()
 
-    tcp = TCP()
-    #print(str_trame[fin_ip+24])
-    fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
-    #print(str_trame[fin_ip:fin_tcp])
-    tcp.decodeTCP(str_trame[fin_ip:fin_tcp])
-    #tcp.printTPC()
+        ip = IPv4()
+        #print("hlen = ", int(str_trame[29], base = 16)*4)
+        fin_ip = (28+(2*int(str_trame[29], base = 16))*4)
+        #print(fin_ip)
+        #print(str_trame[28:fin_ip])
+        ip.decodeIPv4(str_trame[28:fin_ip])
+        #ip.printIPv4()
 
-    http = HTTP()
-    http.decodeHTTP(str_trame[fin_tcp:])
-    #http.printHTTP()
+        tcp = TCP()
+        #print(str_trame[fin_ip+24])
+        fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
+        #print(str_trame[fin_ip:fin_tcp])
+        tcp.decodeTCP(str_trame[fin_ip:fin_tcp])
+        #tcp.printTPC()
 
-    t = Trame()
-    t.setEth(eth)
-    t.setIP(ip)
-    t.setTCP(tcp)
-    t.setHTTP(http)
-    list_trame.append(t)
+        http = HTTP()
+        http.decodeHTTP(str_trame[fin_tcp:])
+        #http.printHTTP()
+
+        t = Trame()
+        t.setEth(eth)
+        t.setIP(ip)
+        t.setTCP(tcp)
+        t.setHTTP(http)
+        list_trame.append(t)
 
     return list_trame
 
@@ -99,7 +112,7 @@ def check_ascii(str):
             return False
     return True
 
-list_trame = decode_trame("TCP.txt")
+list_trame = decode_trame("TCP_2.txt")
 for trame in list_trame:
     trame.eth.printEth()
     trame.ip.printIPv4()
