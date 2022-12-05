@@ -9,7 +9,7 @@ path = os.path.abspath(os.path.join(os.curdir, 'web'))
 print(path)
 eel.init(path)
 
-list_trame = input.decode_trame("TCP_2.txt")
+list_trame = input.decode_trame("TCP_2.txt") + input.decode_trame("TCP.txt")
 
 @eel.expose
 def load_data(filters):
@@ -51,7 +51,6 @@ def filter_output():
     else:
        
         f = sort_filter(split_filter(filter)) 
-        print(f)  
         d = dict_from_trame(trame)
         for couche in d.keys():
             if f[couche] == {"*":"*"}: 
@@ -66,14 +65,12 @@ def filter_output():
                     
                     else: 
                             if specifier not in d[couche].keys():
-                                print(specifier, )
                                 print("second out")
                                 return 0
 
                             if (re.search("src", specifier) is not None) or (re.search("dst", specifier) is not None): #specifier == src/dst: if filter is ip, then src and dst must exist 
                                 for i in f[couche][specifier]:
                                     if re.search("both", i) is not None:
-                                        print("filter_i: ", i)
                                         if ("both"+d[couche]['src'][0] == i) or ("both" + d[couche]['dst'][0] == i):
                                             pass
                                         else:
@@ -89,23 +86,21 @@ def filter_output():
                                     print("fourth out")
                                     return 0
                       
-        print("After filter: ", d) 
-        print("\n\n----------------------------------------------")
+        print("-------------------\nAfter filter: ", d) 
         return d
         
     
 def dict_from_trame(trame):
+    c = Modify_Data()
     def get_tcp_types():
-        c = Modify_Data()
+        
         res = []
         ref = ["URG", "ACK", "PSH", "RST", "SYN", "FIN"]
         calls = [trame.tcp.URG, trame.tcp.ACK, trame.tcp.PSH, trame.tcp.RST, trame.tcp.SYN, trame.tcp.FIN]
         for i in range(len(ref)):
             if int(calls[i]) == 1:
                 res.append(ref[i])
-        print("tcptype:", res)
         return res
-    print("\n\n\n\n\ntrame", trame.http.string)
     d = {"ip":{
             "src":[c.ip_to_str(trame.ip.src_ip)],
             "dst":[c.ip_to_str(trame.ip.dst_ip)]
@@ -123,8 +118,6 @@ def dict_from_trame(trame):
             },
         }
     
-    
-    print("\nOriginal: ", d)
     return d
 
  
@@ -132,8 +125,8 @@ def dict_from_trame(trame):
 
 
 
-
 class Modify_Data:
+    #Used to modify datatypes to get the output type
 
     def ip_to_str(self, input):
         output = ""
@@ -143,14 +136,6 @@ class Modify_Data:
             output += str(int(input[i:i+2], base= 16))
         return output
 
-
-
-c = Modify_Data()
-for trame in list_trame:
-   
-    r = trame.ip.src_ip
-    print(r)
-    print(c.ip_to_str(r))
 
 def split_filter(filterstring):
     def rem(input):
