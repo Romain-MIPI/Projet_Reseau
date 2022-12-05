@@ -231,4 +231,4 @@ def sort_filter(filter):
 
 
 
-eel.start("index.html")
+eel.start("index.html", mode = "default")
