@@ -101,10 +101,11 @@ def dict_from_trame(trame):
         ref = ["URG", "ACK", "PSH", "RST", "SYN", "FIN"]
         calls = [trame.tcp.URG, trame.tcp.ACK, trame.tcp.PSH, trame.tcp.RST, trame.tcp.SYN, trame.tcp.FIN]
         for i in range(len(ref)):
-            if calls[i] == 1:
+            if int(calls[i]) == 1:
                 res.append(ref[i])
+        print("tcptype:", res)
         return res
-
+    print("\n\n\n\n\ntrame", trame.http.string)
     d = {"ip":{
             "src":[c.ip_to_str(trame.ip.src_ip)],
             "dst":[c.ip_to_str(trame.ip.dst_ip)]
@@ -117,6 +118,7 @@ def dict_from_trame(trame):
             "type":[get_tcp_types()]
             },
         "http":{
+            
             "comm":[trame.http.string]
             },
         }
