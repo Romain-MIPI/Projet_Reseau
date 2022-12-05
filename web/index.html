@@ -27,12 +27,14 @@
     <div style="font-family:Consolas; overflow:scroll; width:1600*px;height:500px;">
     <label>Filter: </label><br>
     <input type="text" id="filter" placeholder="" style="color:rgb(0, 0, 0);">
-    <button onclick="document.getElementById('filter').value = ''">Clear input field</button><br><br><br>
-        <style>
+    <button id="reset_button" onclick="document.getElementById('filter').value = ''">Supprimer filtre</button><br><br><br>
+
+    <style>
           table, th, td {
             border: 0px solid rgb(105, 144, 253);
             white-space: pre;
             text-align: left;
+            vertical-align: top;
           }
           table {
             border-spacing: 10px;
@@ -42,15 +44,15 @@
      <div>
      <tr>
         <th style="background-color:#909090;">#</th>
-        <th id="showip" style="background-color:rgb(105, 144, 253);"></th>
+        <th id="showip" style="background-color:rgb(105, 144, 253);">adresse IP</th>
         <th style="background-color:#909090;">type TCP</th>
         <th style="background-color:#ffffff;">Commentaire</th>
       </tr>
       </div> 
     </table> 
-    
-  <script type="text/javascript" src="../eel.js"></script>
-  <script src="./script2.js"></script>
+      <script type="text/javascript" src="../eel.js"></script>
+    <script src="./script2.js"></script>
+
  
 
   <!--

@@ -1,37 +1,39 @@
 
 window.onload = () => {
-    let input = document.getElementById("a");
-    //let btncheck;
-    let flow_data;
+    
 
     load_flow();
 
-
-
-
-
-
-
     let filter = document.getElementById("filter");
+    let btn = document.getElementById("reset_button");
+    filter.onchange = async (ev) =>{ 
+        load_flow()} 
+    btn.onclick = async (ev) =>{ 
+        load_flow()} 
+
+
 
     eel.expose(check_if_filter)
     function check_if_filter(){
         if (filter.value == '') {
-           
             document.getElementById("filter").style = "color:rgb(0, 0, 0);";
             return 0;}
         else{
             return filter.value;
         }}
 
-        //TODO filter set to 0
 
+    function DeleteRows() {
+        let table = document.getElementById("flows")
+        var rowCount = table.rows.length;
+        for (var i = rowCount - 1; i > 0; i--) {
+            table.deleteRow(i);
+        }
+    }
 
-    filter.onchange = async (ev) =>{ 
-        load_flow()} 
-        
     async function load_flow(){
-       let t = await eel.validate_filter()()
+       let t = await eel.validate_filter()();
+       DeleteRows()
        if(t == 0){   
             document.getElementById("filter").style = "color:rgb(255, 0, 0);";
             }
@@ -64,10 +66,7 @@ window.onload = () => {
 
             let ip_array = [];
             while (await eel.filter_output()() != "end_of_list"){
-
-               
                 let data = await eel.filter_output()();
-                //alert(data)
                 if(data != 0){
                     if(contains(ip_array, data['ip']['src']) == 0){
                         ip_array.push(data['ip']['src']);
@@ -83,8 +82,7 @@ window.onload = () => {
                     let cell3 = row.insertCell(2);
                     let cell4 = row.insertCell(3);
                     
-                    cell1.innerHTML = i;
-                    //cell1.style = style="background-color:#909090;"
+                    cell1.innerHTML = i;                    
                     
                     let src = index(ip_array, data['ip']['src'])
                     let dst = index(ip_array, data['ip']['dst']);
@@ -94,12 +92,15 @@ window.onload = () => {
                     let middle_pad;
                     if(dst < src){
                         
-                        let dist = (((src - dst)*19) + (((src - dst) -1)*16))
-                        middle_pad = "<" + "-".repeat(dist);alert(middle_pad)
+                        let dist = (((src - dst)*19) + (((src - dst) -1)*16)-2)
+                        middle_pad = " <" + "-".repeat(dist) + " ";
                     }
                     if(dst > src){
-                        let dist = (((dst-src)*19) + (((dst-src) -1)*16))
-                        middle_pad = '-'.repeat(dist) + ">";} 
+                        let dist = (((dst-src)*19) + (((dst-src) -1)*16)-2)
+                        middle_pad = " " + '-'.repeat(dist) + "> ";} 
+                        //alert(src)
+                        //alert(dst)
+                        //alert(ip_array)
                     let ip_msg = start_pad + ip_array[Math.min(src, dst)] + middle_pad + ip_array[Math.max(src, dst)];
                     
                     cell2.innerHTML = ip_msg
@@ -111,32 +112,10 @@ window.onload = () => {
                 i = i + 1;
             }
             let ip_s = '';
-            
             for(var j = 0; j < ip_array.length-1;j++){
                 ip_s += ip_array[j] + " ".repeat(20);}
             ip_s += ip_array[ip_array.length -1]
             document.getElementById("showip").innerText = ip_s
-
-
-
-            function generateTable(table, ipa) {
-                alert("test")
-                alert(ipa)
-                let row = table.insertRow();
-                for (let element of ipa) {
-                    
-                  
-                  //for (key in element) {
-                    let cell = row.insertCell();
-                    let text = document.createTextNode(element);
-                    cell.appendChild(text);
-                 // }
-                }
-              }
-        
-              //let table = document.querySelector("table");
-              //generateTable(table, ip_array)
-        
         }
        
 

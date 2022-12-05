@@ -9,7 +9,7 @@ path = os.path.abspath(os.path.join(os.curdir, 'web'))
 print(path)
 eel.init(path)
 
-list_trame = input.decode_trame("TCP2.txt")
+list_trame = input.decode_trame("TCP_2.txt")
 
 @eel.expose
 def load_data(filters):
@@ -47,7 +47,7 @@ def filter_output():
     filter = eel.check_if_filter()()
    
     if filter == 0:
-        return dict_from_trame(d)
+        return dict_from_trame(trame)
     else:
        
         f = sort_filter(split_filter(filter)) 
