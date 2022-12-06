@@ -153,7 +153,6 @@ class TCP:
                 i += 2
             else:
                 option_length = trame[i+2:i+4]
-                print((int(option_length, base = 16)//2))
                 if trame[i:i+2] == '08':
                     len_value = 2*int(option_length, base = 16) - 4
                     print(len_value)
