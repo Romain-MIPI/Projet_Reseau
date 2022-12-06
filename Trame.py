@@ -113,9 +113,7 @@ class TCP:
         self.window = None
         self.checksum = None
         self.urgent_pointer = None
-        self.option_type = []
-        self.option_length = []
-        self.option_value = []
+        self.option = []
     
     def decodeTCP(self, trame):
         self.port_src = trame[:4]
@@ -128,9 +126,7 @@ class TCP:
         self.checksum = trame[32:36]
         self.urgent_pointer = trame[36:40]
         if self.THL == '5':
-            self.option_type = None
-            self.option_length = None
-            self.option_value = None
+            self.option = None
         else:
             self.setoptions(trame[40:])
         self.setflags(self.flags)
@@ -150,23 +146,24 @@ class TCP:
 
     def setoptions(self, trame):
         i = 0
-        j = 0
         len_op = len(trame)
         while i <= len_op -1:
             if trame[i:i+2] == '00' or trame[i:i+2] == '01':
-                self.option_type.append(trame[i:i+2])
-                self.option_length.append(None)
-                self.option_value.append(None)
+                self.option.append((trame[i:i+2], None, None))
                 i += 2
             else:
-                self.option_type.append(trame[i:i+2])
-                self.option_length.append(trame[i+2:i+4])
-                if 2*int(self.option_length[j], base = 16) - 4 == 0:
-                    self.option_value.append(None)
+                option_length = trame[i+2:i+4]
+                print((int(option_length, base = 16)//2))
+                if trame[i:i+2] == '08':
+                    len_value = 2*int(option_length, base = 16) - 4
+                    print(len_value)
+                    self.option.append((trame[i:i+2], option_length, (trame[i+4:i+4+(len_value//2)], trame[i+4+(len_value//2):])))
                 else:
-                    self.option_value.append(trame[i+4:i+4+(2*int(self.option_length[j], base = 16) - 4)])
-                i += 4+2*int(self.option_length[j], base = 16) - 4
-            j += 1
+                    if 2*int(option_length, base = 16) - 4 == 0:
+                        self.option.append((trame[i:i+2], option_length, None))
+                    else:
+                        self.option.append((trame[i:i+2], option_length, trame[i+4:i+4+(2*int(option_length, base = 16) - 4)]))
+                i += 4+2*int(option_length, base = 16) - 4
 
 
 
@@ -186,9 +183,7 @@ class TCP:
         print("Window ->", int(self.window, base = 16))
         print("checksum ->", self.checksum)
         print("urgent pointer ->", self.urgent_pointer)
-        print("option type ->", self.option_type)
-        print("option length ->", self.option_length)
-        print("option value ->", self.option_value)
+        print("option ->", self.option)
 
 class HTTP:
     def __init__(self):
