@@ -19,11 +19,8 @@ def decode_trame(file):
                         #traitement trame
                         t = Trame()
 
-                        #print(str_trame)
                         c2 = Ethernet()
                         c2.decodeEth(str_trame[:28])
-                        #print(str_trame[:28])
-                        #c2.printEth()
                         t.setC2(c2)
 
                         if c2.type == "0806": # si c'est un ARP
@@ -31,12 +28,10 @@ def decode_trame(file):
                             c3.decodeARP(str_trame[28:])
                             t.setC3(c3)
 
-                        if c2.type == "0800": # si c'est un IPv4
+                        elif c2.type == "0800": # si c'est un IPv4
                             c3 = IPv4()
                             fin_ip = (28+(2*int(str_trame[29], base = 16)*4))
-                            #print(str_trame[28:fin_ip])
                             c3.decodeIPv4(str_trame[28:fin_ip])
-                            #c3.printIPv4()
                             t.setC3(c3)
 
                             if c3.protocole == "01": # si c'est un ICMP
@@ -44,33 +39,70 @@ def decode_trame(file):
                                 c3_2.decodeICMP(str_trame[fin_ip:])
                                 t.setC4(c3_2)
 
-                            if c3.protocole == "06": # si c'est un TCP
+                            elif c3.protocole == "06": # si c'est un TCP
                                 c4 = TCP()
-                                fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
-                                #print(str_trame[fin_ip:fin_tcp])
+                                fin_tcp = fin_ip + (2*int(str_trame[fin_ip+24], base = 16)*4)
                                 c4.decodeTCP(str_trame[fin_ip:fin_tcp])
-                                #c4.printTPC()
                                 t.setC4(c4)
 
-                                if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP
+                                if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
                                     c7 = HTTP()
                                     c7.decodeHTTP(str_trame[fin_tcp:])
                                     #c7.printHTTP()
                                     t.setC7(c7)
 
+                                elif c4.port_dst == "0016": # si c'est un ssh
+                                    print("ssh n'est pas traitable encore")
+
+                                else:
+                                    print("protocole non traitable")
+                            
+                            elif c3.protocole == "11": # si c'est un UDP
+                                c4 = UDP()
+                                fin_udp = fin_ip + 16
+                                c4.decodeUDP(str_trame[fin_ip:fin_udp])
+                                t.setC4(c4)
+
+                                if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
+                                    c7 = HTTP()
+                                    c7.decodeHTTP(str_trame[fin_tcp:])
+                                    t.setC7(c7)
+
+                                elif c4.port_dst == "0016": # si c'est un ssh
+                                    print("ssh n'est pas traitable encore")
+                                
+                                elif c4.port_dst == "0035": # si c'est un dns
+                                    print("dns n'est pas traitable encore")
+
+                                elif c4.port_dst == "0043" or c4.port_dst == "0044": # si c'est un dhcp
+                                    print("dhcp n'est pas encore traitable")
+
+                                else:
+                                    print("couche 7 : non traitable")
+
+                            else:
+                                print("couche 4 : protocole non traitable")
+                            
+                        else:
+                            print("couche 3 : type de trame non traitable")
+
                         list_trame.append(t)
                         #lecture trame suivant
                         str_trame = trame
                         offset_total = 0
+
                     else :
                         # lecture premiere trame
                         str_trame = trame
                 else:
                     # offset n'est pas 0000 donc on continue de lire
                     str_trame += trame
+
+                # vérification offset
                 if int(offset, base = 16) != offset_total:
                     print("offset non compatible avec la trame")
                     exit()
+
                 else:
                     offset_total += int(len(trame)/2)
             else:
@@ -79,18 +111,10 @@ def decode_trame(file):
                 exit()
             
     #traitement derniere trame
-    #if int(offset, base = 16) != int(offset_total - len(trame)/2): # - len(trame)/2 pour qu'il compte pas les octets de la derniere ligne
-        #print("offset non compatible avec la trame")
-        #exit()
-    #else:
-        #offset_total += int(len(trame)/2)
-
     t = Trame()
 
     c2 = Ethernet()
     c2.decodeEth(str_trame[:28])
-    #print(str_trame[:28])
-    #c2.printEth()
     t.setC2(c2)
 
     if c2.type == "0806": # si c'est un ARP
@@ -98,12 +122,10 @@ def decode_trame(file):
         c3.decodeARP(str_trame[28:])
         t.setC3(c3)
 
-    if c2.type == "0800": # si c'est un IPv4
+    elif c2.type == "0800": # si c'est un IPv4
         c3 = IPv4()
         fin_ip = (28+(2*int(str_trame[29], base = 16)*4))
-        #print(str_trame[28:fin_ip])
         c3.decodeIPv4(str_trame[28:fin_ip])
-        #c3.printIPv4()
         t.setC3(c3)
 
         if c3.protocole == "01": # si c'est un ICMP
@@ -111,20 +133,52 @@ def decode_trame(file):
             c3_2.decodeICMP(str_trame[fin_ip:])
             t.setC4(c3_2)
 
-        if c3.protocole == "06": # si c'est un TCP
+        elif c3.protocole == "06": # si c'est un TCP
             c4 = TCP()
-            fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
-            #print(str_trame[fin_ip:fin_tcp])
+            fin_tcp = fin_ip + (2*int(str_trame[fin_ip+24], base = 16)*4)
             c4.decodeTCP(str_trame[fin_ip:fin_tcp])
-            #c4.printTPC()
             t.setC4(c4)
 
-            if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP
-                print("ici : ", str_trame[fin_tcp:], "fin")
+            if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
                 c7 = HTTP()
                 c7.decodeHTTP(str_trame[fin_tcp:])
                 #c7.printHTTP()
                 t.setC7(c7)
+
+            elif c4.port_dst == "0016": # si c'est un ssh
+                print("ssh n'est pas traitable encore")
+
+            else:
+                print("protocole non traitable")
+        
+        elif c3.protocole == "11": # si c'est un UDP
+            c4 = UDP()
+            fin_udp = fin_ip + 16
+            c4.decodeUDP(str_trame[fin_ip:fin_udp])
+            t.setC4(c4)
+
+            if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
+                c7 = HTTP()
+                c7.decodeHTTP(str_trame[fin_tcp:])
+                t.setC7(c7)
+
+            elif c4.port_dst == "0016": # si c'est un ssh
+                print("ssh n'est pas traitable encore")
+            
+            elif c4.port_dst == "0035": # si c'est un dns
+                print("dns n'est pas traitable encore")
+
+            elif c4.port_dst == "0043" or c4.port_dst == "0044": # si c'est un dhcp
+                print("dhcp n'est pas encore traitable")
+
+            else:
+                print("couche 7 : non traitable")
+
+        else:
+            print("couche 4 : protocole non traitable")
+        
+    else:
+        print("couche 3 : type de trame non traitable")
 
     list_trame.append(t)
 
@@ -140,5 +194,6 @@ def check_ascii(str):
 #list_trame = decode_trame("TCP_2.txt")
 #list_trame = decode_trame("ICMP.txt")
 #list_trame = decode_trame("ARP.txt")
-#for trame in list_trame:
-#    trame.printTrame()
+list_trame = decode_trame("UDP.txt")
+for trame in list_trame:
+    trame.printTrame()

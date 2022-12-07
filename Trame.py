@@ -28,6 +28,8 @@ class Trame:
             self.c4.printICMP()
         elif isinstance(self.c4, TCP):
             self.c4.printTPC()
+        elif isinstance(self.c4, UDP):
+            self.c4.printUDP()
         if isinstance(self.c7, HTTP):
             self.c7.printHTTP()
 
@@ -336,6 +338,28 @@ class TCP:
         print("urgent pointer ->", self.urgent_pointer)
         print("option ->", self.option)
         print("------------------------------------------------------------\n")
+
+class UDP:
+    def __init__(self):
+        self.port_src = None
+        self.port_dst = None
+        self.length = None
+        self.checksum = None
+
+    def decodeUDP(self, trame):
+        self.port_src = trame[:4]
+        self.port_dst = trame[4:8]
+        self.length = trame[8:12]
+        self.checksum = trame[12:]
+
+    def printUDP(self):
+        print("------------------------------UDP---------------------------")
+        print("port src ->", int(self.port_src, base = 16))
+        print("port dst ->", int(self.port_dst, base = 16))
+        print("length ->", int(self.length, base = 16))
+        print("checksum ->", self.checksum)
+        print("------------------------------------------------------------\n")
+
 
 class HTTP:
     def __init__(self):
