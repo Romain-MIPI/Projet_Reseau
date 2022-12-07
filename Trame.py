@@ -1,21 +1,35 @@
 class Trame:
     def __init__(self):
-        self.eth = None
-        self.ip = None
-        self.tcp = None
-        self.http = None
+        self.c2 = None
+        self.c3 = None
+        self.c4 = None
+        self.c7 = None
 
-    def setEth(self, eth):
-        self.eth = eth
+    def setC2(self, c2):
+        self.c2 = c2
 
-    def setIP(self, ip):
-        self.ip = ip
+    def setC3(self, c3):
+        self.c3 = c3
 
-    def setTCP(self, tcp):
-        self.tcp = tcp
+    def setC4(self, c4):
+        self.c4 = c4
 
-    def setHTTP(self, http):
-        self.http = http
+    def setC7(self, c7):
+        self.c7 = c7
+
+    def printTrame(self):
+        if isinstance(self.c2, Ethernet):
+            self.c2.printEth()
+        if isinstance(self.c3, ARP):
+            self.c3.printARP()
+        elif isinstance(self.c3, IPv4):
+            self.c3.printIPv4()
+        if isinstance(self.c4, ICMP):
+            self.c4.printICMP()
+        elif isinstance(self.c4, TCP):
+            self.c4.printTPC()
+        if isinstance(self.c7, HTTP):
+            self.c7.printHTTP()
 
 class Ethernet:
     def __init__(self):
@@ -29,9 +43,11 @@ class Ethernet:
         self.type = trame[24:]
 
     def printEth(self):
+        print("-------------------------Ethernet---------------------------")
         print("dst ->", self.dst_mac)
         print("src ->", self.src_mac)
         print("type ->", self.type)
+        print("------------------------------------------------------------\n")
 
 class IPv4:
     def __init__(self):
@@ -80,6 +96,7 @@ class IPv4:
         self.fragment_offset = tramebin[3:]
 
     def printIPv4(self):
+        print("----------------------------IPv4----------------------------")
         print("version ->", self.version)
         print("hlen ->", int(self.hlen, base = 16)*4, "bytes (", self.hlen, ")")
         print("Tos ->", self.ToS)
@@ -95,6 +112,80 @@ class IPv4:
         print("src ip ->", self.src_ip)
         print("dst ip ->", self.dst_ip)
         print("option ->", self.option)
+        print("------------------------------------------------------------\n")
+
+class ARP:
+    def __init__(self):
+        self.HType = None
+        self.PType = None
+        self.HAddLen = None
+        self.PAddLen = None
+        self.OpCode = None
+        self.SenderHAdd = None
+        self.SenderPAdd = None
+        self.TargetHAdd = None
+        self.TargetPAdd = None
+
+    def decodeARP(self, trame):
+        self.HType = trame[:4]
+        self.PType = trame[4:8]
+        self.HAddLen = trame[8:10]
+        self.PAddLen = trame[10:12]
+        self.OpCode = trame[12:16]
+        self.SenderHAdd = trame[16:28]
+        self.SenderPAdd = trame[28:36]
+        self.TargetHAdd = trame[36:48]
+        self.TargetPAdd = trame[48:]
+
+    def printARP(self):
+        print("------------------------------ARP---------------------------")
+        print("Hardware type -> ", self.HType)
+        print("Protocole type -> ", self.PType)
+        print("Hardware Address Length -> ", self.HAddLen)
+        print("Protocol Adress Length -> ", self.PAddLen)
+        if self.OpCode == "0001":
+            print("OpCode -> ", self.OpCode, "Request")
+        else:
+            print("OpCode -> ", self.OpCode, "Reply")
+        print("Sender Hardware Address -> ", self.SenderHAdd)
+        print("Sender Protocol Address -> ", self.SenderPAdd)
+        print("Target Hardware Address -> ", self.TargetHAdd)
+        print("Target Protocol Address -> ", self.TargetPAdd)
+        print("------------------------------------------------------------\n")
+
+class ICMP:
+    def __init__(self):
+        self.type = None
+        self.code = None
+        self.checksum = None
+        self.id = None
+        self.seqNum = None
+        self.timestamp = None
+        self.data = None
+
+    def decodeICMP(self, trame):
+        # reconnaît que des types echo request et echo reply
+        self.type = trame[:2]
+        self.code = trame[2:4]
+        self.checksum = trame[4:8]
+        self.id = trame[8:12]
+        self.seqNum = trame[12:16]
+        self.timestamp = trame[16:32]
+        self.data = trame[32:]
+
+    def printICMP(self):
+        print("-----------------------------ICMP---------------------------")
+        if self.type == "08":
+            print("type -> ", self.type, "(Echo (ping) request)")
+        if self.type == "00":
+            print("type -> ", self.type, "(Echo (ping) reply)")
+        print("code -> ", self.code)
+        print("checksum -> ", self.checksum)
+        print("id -> ", self.id)
+        print("sequence number -> ", self.seqNum)
+        print("timestamp -> ", self.timestamp)
+        print("data -> ", self.data)
+        print("------------------------------------------------------------\n")
 
 class TCP:
     def __init__(self):
@@ -164,9 +255,8 @@ class TCP:
                         self.option.append((trame[i:i+2], option_length, trame[i+4:i+4+(2*int(option_length, base = 16) - 4)]))
                 i += 4+2*int(option_length, base = 16) - 4
 
-
-
     def printTPC(self):
+        print("---------------------------TCP------------------------------")
         print("port src ->", int(self.port_src, base = 16))
         print("port dst ->", int(self.port_dst, base = 16))
         print("sequence number ->", int(self.seq_num, base = 16))
@@ -183,6 +273,7 @@ class TCP:
         print("checksum ->", self.checksum)
         print("urgent pointer ->", self.urgent_pointer)
         print("option ->", self.option)
+        print("------------------------------------------------------------\n")
 
 class HTTP:
     def __init__(self):
@@ -192,6 +283,7 @@ class HTTP:
         self.string = bytes.fromhex(string).decode("ASCII").rstrip('\n')
 
     def printHTTP(self):
-        print("------------------------------------------------------------\n")
-        print(self.string)
-        print("------------------------------------------------------------")
+        if self.string != None:
+            print("-----------------------------HTTP---------------------------")
+            print(self.string)
+            print("------------------------------------------------------------\n")

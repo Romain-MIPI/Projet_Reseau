@@ -17,35 +17,48 @@ def decode_trame(file):
                 if offset == "0000": # si c'est un début d'un trame
                     if str_trame != "": # si ce n'est la premiere trame
                         #traitement trame
-                        #print(str_trame)
-                        eth = Ethernet()
-                        eth.decodeEth(str_trame[:28])
-                        #print(str_trame[:28])
-                        #eth.printEth()
-
-                        ip = IPv4()
-                        fin_ip = (28+(2*int(str_trame[29], base = 16)*4))
-                        #print(str_trame[28:fin_ip])
-                        ip.decodeIPv4(str_trame[28:fin_ip])
-                        #ip.printIPv4()
-
-                        tcp = TCP()
-                        fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
-                        #print(str_trame[fin_ip:fin_tcp])
-                        tcp.decodeTCP(str_trame[fin_ip:fin_tcp])
-                        #tcp.printTPC()
-
-                        http = HTTP()
-                        http.decodeHTTP(str_trame[fin_tcp:])
-                        #http.printHTTP()
-
                         t = Trame()
-                        t.setEth(eth)
-                        t.setIP(ip)
-                        t.setTCP(tcp)
-                        t.setHTTP(http)
-                        list_trame.append(t)
 
+                        #print(str_trame)
+                        c2 = Ethernet()
+                        c2.decodeEth(str_trame[:28])
+                        #print(str_trame[:28])
+                        #c2.printEth()
+                        t.setC2(c2)
+
+                        if c2.type == "0806": # si c'est un ARP
+                            c3 = ARP()
+                            c3.decodeARP(str_trame[28:])
+                            t.setC3(c3)
+
+                        if c2.type == "0800": # si c'est un IPv4
+                            c3 = IPv4()
+                            fin_ip = (28+(2*int(str_trame[29], base = 16)*4))
+                            #print(str_trame[28:fin_ip])
+                            c3.decodeIPv4(str_trame[28:fin_ip])
+                            #c3.printIPv4()
+                            t.setC3(c3)
+
+                            if c3.protocole == "01": # si c'est un ICMP
+                                c3_2 = ICMP()
+                                c3_2.decodeICMP(str_trame[fin_ip:])
+                                t.setC4(c3_2)
+
+                            if c3.protocole == "06": # si c'est un TCP
+                                c4 = TCP()
+                                fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
+                                #print(str_trame[fin_ip:fin_tcp])
+                                c4.decodeTCP(str_trame[fin_ip:fin_tcp])
+                                #c4.printTPC()
+                                t.setC4(c4)
+
+                                if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP
+                                    c7 = HTTP()
+                                    c7.decodeHTTP(str_trame[fin_tcp:])
+                                    #c7.printHTTP()
+                                    t.setC7(c7)
+
+                        list_trame.append(t)
                         #lecture trame suivant
                         str_trame = trame
                         offset_total = 0
@@ -66,43 +79,54 @@ def decode_trame(file):
                 exit()
             
     #traitement derniere trame
-    if int(offset, base = 16) != int(offset_total - len(trame)/2): # - len(trame)/2 pour qu'il compte pas les octets de la derniere ligne
-        print("offset non compatible avec la trame")
-        exit()
-    else:
-        offset_total += int(len(trame)/2)
+    #if int(offset, base = 16) != int(offset_total - len(trame)/2): # - len(trame)/2 pour qu'il compte pas les octets de la derniere ligne
+        #print("offset non compatible avec la trame")
+        #exit()
+    #else:
+        #offset_total += int(len(trame)/2)
 
-        #print(str_trame)
-        #print(str_trame[:28])
-        eth = Ethernet()
-        eth.decodeEth(str_trame[:28])
-        #eth.printEth()
+    t = Trame()
 
-        ip = IPv4()
-        #print("hlen = ", int(str_trame[29], base = 16)*4)
-        fin_ip = (28+(2*int(str_trame[29], base = 16))*4)
-        #print(fin_ip)
+    c2 = Ethernet()
+    c2.decodeEth(str_trame[:28])
+    #print(str_trame[:28])
+    #c2.printEth()
+    t.setC2(c2)
+
+    if c2.type == "0806": # si c'est un ARP
+        c3 = ARP()
+        c3.decodeARP(str_trame[28:])
+        t.setC3(c3)
+
+    if c2.type == "0800": # si c'est un IPv4
+        c3 = IPv4()
+        fin_ip = (28+(2*int(str_trame[29], base = 16)*4))
         #print(str_trame[28:fin_ip])
-        ip.decodeIPv4(str_trame[28:fin_ip])
-        #ip.printIPv4()
+        c3.decodeIPv4(str_trame[28:fin_ip])
+        #c3.printIPv4()
+        t.setC3(c3)
 
-        tcp = TCP()
-        #print(str_trame[fin_ip+24])
-        fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
-        #print(str_trame[fin_ip:fin_tcp])
-        tcp.decodeTCP(str_trame[fin_ip:fin_tcp])
-        #tcp.printTPC()
+        if c3.protocole == "01": # si c'est un ICMP
+            c3_2 = ICMP()
+            c3_2.decodeICMP(str_trame[fin_ip:])
+            t.setC4(c3_2)
 
-        http = HTTP()
-        http.decodeHTTP(str_trame[fin_tcp:])
-        #http.printHTTP()
+        if c3.protocole == "06": # si c'est un TCP
+            c4 = TCP()
+            fin_tcp = fin_ip+(2*int(str_trame[fin_ip+24], base = 16)*4)
+            #print(str_trame[fin_ip:fin_tcp])
+            c4.decodeTCP(str_trame[fin_ip:fin_tcp])
+            #c4.printTPC()
+            t.setC4(c4)
 
-        t = Trame()
-        t.setEth(eth)
-        t.setIP(ip)
-        t.setTCP(tcp)
-        t.setHTTP(http)
-        list_trame.append(t)
+            if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP
+                print("ici : ", str_trame[fin_tcp:], "fin")
+                c7 = HTTP()
+                c7.decodeHTTP(str_trame[fin_tcp:])
+                #c7.printHTTP()
+                t.setC7(c7)
+
+    list_trame.append(t)
 
     return list_trame
 
@@ -112,9 +136,9 @@ def check_ascii(str):
             return False
     return True
 
-list_trame = decode_trame("TCP_2.txt")
-for trame in list_trame:
-    trame.eth.printEth()
-    trame.ip.printIPv4()
-    trame.tcp.printTPC()
-    trame.http.printHTTP()
+#list_trame = decode_trame("TCP.txt")
+#list_trame = decode_trame("TCP_2.txt")
+#list_trame = decode_trame("ICMP.txt")
+#list_trame = decode_trame("ARP.txt")
+#for trame in list_trame:
+#    trame.printTrame()
