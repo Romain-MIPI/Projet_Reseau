@@ -44,9 +44,22 @@ class Ethernet:
 
     def printEth(self):
         print("-------------------------Ethernet---------------------------")
-        print("dst ->", self.dst_mac)
-        print("src ->", self.src_mac)
-        print("type ->", self.type)
+        dst = self.dst_mac[0:2]
+        src = self.src_mac[0:2]
+        for i in range(2, len(self.dst_mac)):
+            if i%2 == 0:
+                dst += ":"
+                src += ":"
+            dst += self.dst_mac[i]
+            src += self.src_mac[i]
+        print("dst ->", dst)
+        print("src ->", src)
+        if self.type == "0800":
+            print("type ->", self.type, "(IPv4)")
+        elif self.type == "0806":
+            print("type ->", self.type, "(ARP)")
+        else:
+            print("type ->", self.type)
         print("------------------------------------------------------------\n")
 
 class IPv4:
@@ -101,16 +114,36 @@ class IPv4:
         print("hlen ->", int(self.hlen, base = 16)*4, "bytes (", self.hlen, ")")
         print("Tos ->", self.ToS)
         print("total length ->", str(int(self.len, base = 16)))
-        print("id ->", self.id)
+        print("id ->", self.id, "(", int(self.id, base = 16), ")")
         print("flags ->", self.flags)
         print("DF ->", self.DF,)
         print("MF ->", self.MF)
         print("fragment offset ->", self.fragment_offset)
         print("TTL ->", int(self.TTL, base = 16))
-        print("protocole ->", self.protocole)
+        if self.protocole == "01":
+            print("protocole ->", self.protocole, "(ICMP)")
+        elif self.protocole == "06":
+            print("protocole ->", self.protocole, "(TCP)")
+        elif self.protocole == "11":
+            print("protocole ->", self.protocole, "(UDP)")
         print("checksum ->", self.checksum)
-        print("src ip ->", self.src_ip)
-        print("dst ip ->", self.dst_ip)
+        src = str(int(self.src_ip[0:2], base = 16))
+        dst = str(int(self.dst_ip[0:2], base = 16))
+        stock_src = ""
+        stock_dst = ""
+        for i in range(2, len(self.dst_ip)):
+            if i%2 == 0:
+                if not (stock_src == "" and stock_dst == ""):
+                    src = src + "." + str(int(stock_src, base = 16))
+                    dst = dst + "." + str(int(stock_dst, base = 16))
+                    stock_src = ""
+                    stock_dst = ""
+            stock_src += self.src_ip[i]
+            stock_dst += self.dst_ip[i]
+        src = src + "." + str(int(stock_src, base = 16))
+        dst = dst + "." + str(int(stock_dst, base = 16))
+        print("src ip ->", src)
+        print("dst ip ->", dst)
         print("option ->", self.option)
         print("------------------------------------------------------------\n")
 
@@ -139,18 +172,47 @@ class ARP:
 
     def printARP(self):
         print("------------------------------ARP---------------------------")
-        print("Hardware type -> ", self.HType)
-        print("Protocole type -> ", self.PType)
-        print("Hardware Address Length -> ", self.HAddLen)
-        print("Protocol Adress Length -> ", self.PAddLen)
-        if self.OpCode == "0001":
-            print("OpCode -> ", self.OpCode, "Request")
+        if self.HType == "0001":
+            print("Hardware type -> Ethernet (", self.HType, ")")
         else:
-            print("OpCode -> ", self.OpCode, "Reply")
-        print("Sender Hardware Address -> ", self.SenderHAdd)
-        print("Sender Protocol Address -> ", self.SenderPAdd)
-        print("Target Hardware Address -> ", self.TargetHAdd)
-        print("Target Protocol Address -> ", self.TargetPAdd)
+            print("Hardware type ->", self.HType)
+        if self.PType == "0800":
+            print("Protocole type -> IPv4 (", self.PType, ")")
+        else:
+            print("Protocole type ->", self.PType)
+        print("Hardware Address Length ->", self.HAddLen)
+        print("Protocol Address Length ->", self.PAddLen)
+        if self.OpCode == "0001":
+            print("OpCode -> ", "Request (", self.OpCode, ")")
+        else:
+            print("OpCode -> ", "Reply (", self.OpCode, ")")
+        senderH = self.SenderHAdd[0:2]
+        targetH = self.TargetHAdd[0:2]
+        for i in range(2, len(self.SenderHAdd)):
+            if i%2 == 0:
+                senderH += ":"
+                targetH += ":"
+            senderH += self.SenderHAdd[i]
+            targetH += self.TargetHAdd[i]
+        senderP = str(int(self.SenderPAdd[0:2], base = 16))
+        targetP = str(int(self.TargetPAdd[0:2], base = 16))
+        stock_sender = ""
+        stock_target = ""
+        for i in range(2, len(self.SenderPAdd)):
+            if i%2 == 0:
+                if not (stock_sender == "" and stock_target == ""):
+                    senderP = senderP + "." + str(int(stock_sender, base = 16))
+                    targetP = targetP + "." + str(int(stock_target, base = 16))
+                    stock_sender = ""
+                    stock_target = ""
+            stock_sender += self.SenderPAdd[i]
+            stock_target += self.TargetPAdd[i]
+        senderP = senderP + "." + str(int(stock_sender, base = 16))
+        targetP = targetP + "." + str(int(stock_target, base = 16))
+        print("Sender Mac Address ->", senderH)
+        print("Sender IP Address ->", senderP)
+        print("Target Mac Address ->", targetH)
+        print("Target IP Address ->", targetP)
         print("------------------------------------------------------------\n")
 
 class ICMP:
@@ -181,7 +243,7 @@ class ICMP:
             print("type -> ", self.type, "(Echo (ping) reply)")
         print("code -> ", self.code)
         print("checksum -> ", self.checksum)
-        print("id -> ", self.id)
+        print("id -> ", self.id, "(", str(int(self.id, base = 16)), ")")
         print("sequence number -> ", self.seqNum)
         print("timestamp -> ", self.timestamp)
         print("data -> ", self.data)
