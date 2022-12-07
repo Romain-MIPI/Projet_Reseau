@@ -13,7 +13,7 @@ def decode_trame(file):
             tab = ligne.split('   ')
             offset = tab[0]
             trame = tab[1].rstrip('\n').replace(" ", "")
-            if check_ascii(trame): # si la trame contient bien que des hex
+            if check_hex(trame): # si la trame contient bien que des hex
                 if offset == "0000": # si c'est un début d'un trame
                     if str_trame != "": # si ce n'est la premiere trame
                         #traitement trame
@@ -184,7 +184,7 @@ def decode_trame(file):
 
     return list_trame
 
-def check_ascii(str):
+def check_hex(str):
     for c in str:
         if c not in string.hexdigits: # si c n'est pas un hex
             return False
