@@ -102,12 +102,12 @@ def dict_from_trame(trame):
                 res.append(ref[i])
         return res
     d = {"ip":{
-            "src":[c.ip_to_str(trame.ip.dst_ip)],
-            "dst":[c.ip_to_str(trame.ip.src_ip)]
+            "src":[c.ip_to_str(trame.ip.src_ip)],
+            "dst":[c.ip_to_str(trame.ip.dst_ip)]
             }, 
         "tcp":{
-            "src":[str(int(trame.tcp.port_dst, base=16))],
-            "dst":[str(int(trame.tcp.port_src, base=16))],
+            "src":[str(int(trame.tcp.port_src, base=16))],
+            "dst":[str(int(trame.tcp.port_dst, base=16))],
             "seq_num":[str(int(trame.tcp.seq_num, base=16))],
             "ack_num":[str(int(trame.tcp.ack_num, base = 16))],
             "type":[get_tcp_types()]
