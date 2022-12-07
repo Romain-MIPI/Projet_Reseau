@@ -9,7 +9,7 @@ path = os.path.abspath(os.path.join(os.curdir, 'web'))
 print(path)
 eel.init(path)
 
-list_trame = input.decode_trame("TCP_2.txt") + input.decode_trame("TCP.txt")
+list_trame = input.decode_trame("./Trame/TCP_2.txt") + input.decode_trame("./Trame/TCP.txt")
 
 @eel.expose
 def load_data(filters):

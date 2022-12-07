@@ -190,10 +190,10 @@ def check_ascii(str):
             return False
     return True
 
-#list_trame = decode_trame("TCP.txt")
-#list_trame = decode_trame("TCP_2.txt")
-#list_trame = decode_trame("ICMP.txt")
-#list_trame = decode_trame("ARP.txt")
-list_trame = decode_trame("UDP.txt")
+#list_trame = decode_trame("./Trame/TCP.txt")
+#list_trame = decode_trame("./Trame/TCP_2.txt")
+#list_trame = decode_trame("./Trame/ICMP.txt")
+#list_trame = decode_trame("./Trame/ARP.txt")
+list_trame = decode_trame("./Trame/UDP.txt")
 for trame in list_trame:
     trame.printTrame()
