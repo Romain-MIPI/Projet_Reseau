@@ -48,11 +48,10 @@ def decode_trame(file):
                                 if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
                                     c7 = HTTP()
                                     c7.decodeHTTP(str_trame[fin_tcp:])
-                                    #c7.printHTTP()
                                     t.setC7(c7)
 
                                 elif c4.port_dst == "0016": # si c'est un ssh
-                                    print("ssh n'est pas traitable encore")
+                                    print("SSH n'est pas traitable encore")
 
                                 else:
                                     print("protocole non traitable")
@@ -69,13 +68,13 @@ def decode_trame(file):
                                     t.setC7(c7)
 
                                 elif c4.port_dst == "0016": # si c'est un ssh
-                                    print("ssh n'est pas traitable encore")
+                                    print("SSH n'est pas traitable encore")
                                 
                                 elif c4.port_dst == "0035": # si c'est un dns
-                                    print("dns n'est pas traitable encore")
+                                    print("DNS n'est pas traitable encore")
 
                                 elif c4.port_dst == "0043" or c4.port_dst == "0044": # si c'est un dhcp
-                                    print("dhcp n'est pas encore traitable")
+                                    print("DHCP n'est pas encore traitable")
 
                                 else:
                                     print("couche 7 : non traitable")
@@ -142,7 +141,6 @@ def decode_trame(file):
             if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
                 c7 = HTTP()
                 c7.decodeHTTP(str_trame[fin_tcp:])
-                #c7.printHTTP()
                 t.setC7(c7)
 
             elif c4.port_dst == "0016": # si c'est un ssh
