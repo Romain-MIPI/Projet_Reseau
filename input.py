@@ -93,7 +93,6 @@ def decode_trame(file):
                 else:
                     offset_total += int(len(trame)/2)
             else:
-                print(trame)
                 print("trame non compatible")
                 exit()
             
