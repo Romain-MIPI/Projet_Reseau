@@ -45,16 +45,13 @@ def decode_trame(file):
                                 c4.decodeTCP(str_trame[fin_ip:fin_tcp])
                                 t.setC4(c4)
 
-                                if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
+                                if (c4.port_dst  == "0050" or c4.port_src == "0050") and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
                                     c7 = HTTP()
                                     c7.decodeHTTP(str_trame[fin_tcp:])
                                     t.setC7(c7)
 
-                                elif c4.port_dst == "0016": # si c'est un ssh
+                                elif (c4.port_dst  == "0016" or c4.port_src == "0016"): # si c'est un ssh
                                     print("SSH n'est pas traitable encore")
-
-                                else:
-                                    print("protocole non traitable")
                             
                             elif c3.protocole == "11": # si c'est un UDP
                                 c4 = UDP()
@@ -62,28 +59,19 @@ def decode_trame(file):
                                 c4.decodeUDP(str_trame[fin_ip:fin_udp])
                                 t.setC4(c4)
 
-                                if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
+                                if (c4.port_dst  == "0050" or c4.port_src == "0050") and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
                                     c7 = HTTP()
                                     c7.decodeHTTP(str_trame[fin_tcp:])
                                     t.setC7(c7)
 
-                                elif c4.port_dst == "0016": # si c'est un ssh
+                                elif (c4.port_dst  == "0016" or c4.port_src == "0016"): # si c'est un ssh
                                     print("SSH n'est pas traitable encore")
                                 
-                                elif c4.port_dst == "0035": # si c'est un dns
+                                elif (c4.port_dst  == "0035" or c4.port_src == "0035"): # si c'est un dns
                                     print("DNS n'est pas traitable encore")
 
-                                elif c4.port_dst == "0043" or c4.port_dst == "0044": # si c'est un dhcp
+                                elif (c4.port_dst == "0043" or c4.port_dst == "0044") or (c4.port_dst == "0044" or c4.port_dst == "0043"): # si c'est un dhcp
                                     print("DHCP n'est pas encore traitable")
-
-                                else:
-                                    print("couche 7 : non traitable")
-
-                            else:
-                                print("couche 4 : protocole non traitable")
-                            
-                        else:
-                            print("couche 3 : type de trame non traitable")
 
                         list_trame.append(t)
                         #lecture trame suivant
@@ -137,17 +125,14 @@ def decode_trame(file):
             fin_tcp = fin_ip + (2*int(str_trame[fin_ip+24], base = 16)*4)
             c4.decodeTCP(str_trame[fin_ip:fin_tcp])
             t.setC4(c4)
-
-            if c4.port_dst == "0050" and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
+            
+            if (c4.port_dst == "0050" or c4.port_src == "0050") and str_trame[fin_tcp:] != "": # si c'est un HTTP non vide
                 c7 = HTTP()
                 c7.decodeHTTP(str_trame[fin_tcp:])
                 t.setC7(c7)
 
-            elif c4.port_dst == "0016": # si c'est un ssh
+            elif (c4.port_dst  == "0016" or c4.port_src == "0016"): # si c'est un ssh
                 print("ssh n'est pas traitable encore")
-
-            else:
-                print("protocole non traitable")
         
         elif c3.protocole == "11": # si c'est un UDP
             c4 = UDP()
@@ -160,23 +145,14 @@ def decode_trame(file):
                 c7.decodeHTTP(str_trame[fin_tcp:])
                 t.setC7(c7)
 
-            elif c4.port_dst == "0016": # si c'est un ssh
+            elif (c4.port_dst  == "0016" or c4.port_src == "0016"): # si c'est un ssh
                 print("ssh n'est pas traitable encore")
             
-            elif c4.port_dst == "0035": # si c'est un dns
+            elif (c4.port_dst  == "0035" or c4.port_src == "0035"): # si c'est un dns
                 print("dns n'est pas traitable encore")
 
-            elif c4.port_dst == "0043" or c4.port_dst == "0044": # si c'est un dhcp
+            elif  (c4.port_dst == "0043" or c4.port_dst == "0044") or (c4.port_dst == "0044" or c4.port_dst == "0043"): # si c'est un dhcp
                 print("dhcp n'est pas encore traitable")
-
-            else:
-                print("couche 7 : non traitable")
-
-        else:
-            print("couche 4 : protocole non traitable")
-        
-    else:
-        print("couche 3 : type de trame non traitable")
 
     list_trame.append(t)
 
