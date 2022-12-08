@@ -93,7 +93,7 @@ def filter_output():
 def dict_from_trame(trame):
     c = Modify_Data()
     def get_tcp_types():
-        
+        print(trame.tcp.option_value)
         res = []
         ref = ["URG", "ACK", "PSH", "RST", "SYN", "FIN"]
         calls = [trame.tcp.URG, trame.tcp.ACK, trame.tcp.PSH, trame.tcp.RST, trame.tcp.SYN, trame.tcp.FIN]
@@ -106,10 +106,10 @@ def dict_from_trame(trame):
             "dst":[c.ip_to_str(trame.ip.dst_ip)]
             }, 
         "tcp":{
-            "src":[trame.tcp.port_src],
-            "dst":[trame.tcp.port_dst],
-            "seq_num":[trame.tcp.seq_num],
-            "ack_num":[trame.tcp.ack_num],
+            "src":[str(int(trame.tcp.port_src, base=16))],
+            "dst":[str(int(trame.tcp.port_dst, base=16))],
+            "seq_num":[str(int(trame.tcp.seq_num, base=16))],
+            "ack_num":[str(int(trame.tcp.ack_num, base = 16))],
             "type":[get_tcp_types()]
             },
         "http":{
@@ -219,6 +219,21 @@ def sort_filter(filter):
     return filtres
 
 
+@eel.expose
+def save_to_file(): 
+    count = eel.pass_file_count()()
+    data = eel.pass_output_strings()()
+    data_split = data.split("_end_of_line,")
+    print(data_split)
+    for i in range(len(data_split)): 
+        pass
+        data_split[i] = data_split[i].replace("_end_of_line", "")
+    with open('output' + str(count), 'w') as fw:
+        for i in data_split:
+            fw.write(i)
+            fw.write("\n\n\n")
+
+    
 
 
 

@@ -3,7 +3,8 @@ window.onload = () => {
     
 
     load_flow();
-
+    let output_array= [];
+    let file_count = 1;
     let filter = document.getElementById("filter");
     let btn = document.getElementById("reset_button");
     filter.onchange = async (ev) =>{ 
@@ -11,6 +12,14 @@ window.onload = () => {
     btn.onclick = async (ev) =>{ 
         load_flow()} 
 
+
+    eel.expose(pass_output_strings)
+    function pass_output_strings(){
+        return output_array;
+    }
+
+    eel.expose(pass_file_count)
+    function pass_file_count(){return file_count;}
 
 
     eel.expose(check_if_filter)
@@ -65,6 +74,7 @@ window.onload = () => {
             }
 
             let ip_array = [];
+            let data_array = [];
             while (await eel.filter_output()() != "end_of_list"){
                 let data = await eel.filter_output()();
                 if(data != 0){
@@ -81,43 +91,60 @@ window.onload = () => {
                     let cell2 = row.insertCell(1);
                     let cell3 = row.insertCell(2);
                     let cell4 = row.insertCell(3);
+                    let cell5 = row.insertCell(4);
+                    let cell6 = row.insertCell(5);
                     
                     cell1.innerHTML = i;                    
                     
                     let src = index(ip_array, data['ip']['src'])
                     let dst = index(ip_array, data['ip']['dst']);
                     let start_pad = '';
-                    start_pad += " ".repeat(Math.min(src, dst));
+                    start_pad = " ".repeat(15* Math.min(src, dst) + 20*Math.min(src, dst));
                     
                     let middle_pad;
+                    let ip_msg;
                     if(dst < src){
                         
-                        let dist = (((src - dst)*19) + (((src - dst) -1)*16)-2)
-                        middle_pad = " <" + "-".repeat(dist) + " ";
+                        let dist = (((src - dst)*20) + (((src - dst) -1)*15)-5)
+                        let pad = 15 - data['tcp']['dst'][0].length
+                        
+                        middle_pad = "  <" + "-".repeat(dist + pad) + "  ";
+                        ip_msg = start_pad + data['tcp']['dst'][0] + middle_pad + data['tcp']['src'][0];
                     }
                     if(dst > src){
-                        let dist = (((dst-src)*19) + (((dst-src) -1)*16)-2)
-                        middle_pad = " " + '-'.repeat(dist) + "> ";} 
+                        let dist = (((dst-src)*20) + (((dst-src) -1)*15)-5)
+                        let pad = 15 - data['tcp']['src'][0].length
+                        
+                        middle_pad = "  " + '-'.repeat(dist + pad) + ">  ";
+                        
                         //alert(src)
                         //alert(dst)
                         //alert(ip_array)
-                    let ip_msg = start_pad + ip_array[Math.min(src, dst)] + middle_pad + ip_array[Math.max(src, dst)];
+                    ip_msg = start_pad + data['tcp']['src'][0] + middle_pad + data['tcp']['dst'][0];}
                     
                     cell2.innerHTML = ip_msg
                     cell3.innerHTML = data['tcp']['type'];
-                    cell4.innerHTML = data['http']['comm'];
-                    
+                    cell4.innerHTML = data['tcp']['seq_num']    
+                    cell5.innerHTML = data['tcp']['ack_num'];
+                    cell6.innerHTML = data['http']['comm']; 
+                    let s = "\n"
+                    let line = i.toString() + s + ip_msg + s +  data['tcp']['type'] + s + data['tcp']['seq_num'] + s + data['tcp']['ack_num'] + data['http']['comm'][0].replace(/(\r\n|\n|\r)/gm, "\t") + "_end_of_line";
+                    data_array.push(line.toString())          
                 }
                 
                 i = i + 1;
             }
             let ip_s = '';
             for(var j = 0; j < ip_array.length-1;j++){
-                ip_s += ip_array[j] + " ".repeat(20);}
+                ip_s += ip_array[j] + " ".repeat(20+ (15-ip_array[j][0].length));}
             ip_s += ip_array[ip_array.length -1]
             document.getElementById("showip").innerText = ip_s
+            let s =  "\n"
+            output_array.push('#' + s + ip_s +s+ "type TCP" +s+ '# Seq' +s+ '# ACK' +s+ 'Commentaire'+ s+ "_end_of_line,")
+            output_array += data_array
         }
-       
+        eel.save_to_file()
+        count += 1
 
     }
 /*
