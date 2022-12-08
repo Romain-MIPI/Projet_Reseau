@@ -52,9 +52,6 @@ def decode_trame(file):
 
                                 elif c4.port_dst == "0016": # si c'est un ssh
                                     print("SSH n'est pas traitable encore")
-
-                                else:
-                                    print("protocole non traitable")
                             
                             elif c3.protocole == "11": # si c'est un UDP
                                 c4 = UDP()
@@ -75,15 +72,6 @@ def decode_trame(file):
 
                                 elif c4.port_dst == "0043" or c4.port_dst == "0044": # si c'est un dhcp
                                     print("DHCP n'est pas encore traitable")
-
-                                else:
-                                    print("couche 7 : non traitable")
-
-                            else:
-                                print("couche 4 : protocole non traitable")
-                            
-                        else:
-                            print("couche 3 : type de trame non traitable")
 
                         list_trame.append(t)
                         #lecture trame suivant
@@ -145,9 +133,6 @@ def decode_trame(file):
 
             elif c4.port_dst == "0016": # si c'est un ssh
                 print("ssh n'est pas traitable encore")
-
-            else:
-                print("protocole non traitable")
         
         elif c3.protocole == "11": # si c'est un UDP
             c4 = UDP()
@@ -169,15 +154,6 @@ def decode_trame(file):
             elif c4.port_dst == "0043" or c4.port_dst == "0044": # si c'est un dhcp
                 print("dhcp n'est pas encore traitable")
 
-            else:
-                print("couche 7 : non traitable")
-
-        else:
-            print("couche 4 : protocole non traitable")
-        
-    else:
-        print("couche 3 : type de trame non traitable")
-
     list_trame.append(t)
 
     return list_trame
@@ -189,9 +165,9 @@ def check_hex(str):
     return True
 
 #list_trame = decode_trame("./Trame/TCP.txt")
-#list_trame = decode_trame("./Trame/TCP_2.txt")
+list_trame = decode_trame("./Trame/TCP_2.txt")
 #list_trame = decode_trame("./Trame/ICMP.txt")
 #list_trame = decode_trame("./Trame/ARP.txt")
 #list_trame = decode_trame("./Trame/UDP.txt")
-#for trame in list_trame:
-#    trame.printTrame()
+for trame in list_trame:
+    trame.printTrame()
