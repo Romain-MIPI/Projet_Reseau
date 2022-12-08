@@ -366,7 +366,7 @@ class HTTP:
         self.string = None
 
     def decodeHTTP(self, string):
-        self.string = bytes.fromhex(string).decode("ASCII").rstrip('\n')
+        self.string = bytes.fromhex(string).decode('latin-1').rstrip('\n')
 
     def printHTTP(self):
         if self.string != None:
