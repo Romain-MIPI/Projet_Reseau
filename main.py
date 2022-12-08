@@ -9,16 +9,9 @@ path = os.path.abspath(os.path.join(os.curdir, 'web'))
 print(path)
 eel.init(path)
 
-list_trame = input.decode_trame("./Trame/TCP_2.txt") + input.decode_trame("./Trame/TCP.txt")
+list_trame = input.decode_trame("./Trame/TCP.txt") + input.decode_trame("./Trame/TCP_2.txt")
 
-@eel.expose
-def load_data(filters):
-    #filters: 
 
-    #call backend functions
-    ip = [["1.23.34", "jkj"], ["xfs", "klj"]]
-
-    return ip
 
 @eel.expose
 def double():
@@ -49,9 +42,11 @@ def filter_output():
     if filter == 0:
         return dict_from_trame(trame)
     else:
-       
         f = sort_filter(split_filter(filter)) 
         d = dict_from_trame(trame)
+        if f["#"] != []:
+            if str(i) not in f['#']:
+                return 0
         for couche in d.keys():
             if f[couche] == {"*":"*"}: 
                 for i in range(len(d[couche].keys())):
@@ -86,35 +81,33 @@ def filter_output():
                                     print("fourth out")
                                     return 0
                       
-        print("-------------------\nAfter filter: ", d) 
         return d
         
     
 def dict_from_trame(trame):
     c = Modify_Data()
     def get_tcp_types():
-        print(trame.tcp.option_value)
+        
         res = []
         ref = ["URG", "ACK", "PSH", "RST", "SYN", "FIN"]
-        calls = [trame.tcp.URG, trame.tcp.ACK, trame.tcp.PSH, trame.tcp.RST, trame.tcp.SYN, trame.tcp.FIN]
+        calls = [trame.c4.URG, trame.c4.ACK, trame.c4.PSH, trame.c4.RST, trame.c4.SYN, trame.c4.FIN]
         for i in range(len(ref)):
             if int(calls[i]) == 1:
                 res.append(ref[i])
         return res
     d = {"ip":{
-            "src":[c.ip_to_str(trame.ip.src_ip)],
-            "dst":[c.ip_to_str(trame.ip.dst_ip)]
+            "src":[c.ip_to_str(trame.c3.src_ip)],
+            "dst":[c.ip_to_str(trame.c3.dst_ip)]
             }, 
         "tcp":{
-            "src":[str(int(trame.tcp.port_src, base=16))],
-            "dst":[str(int(trame.tcp.port_dst, base=16))],
-            "seq_num":[str(int(trame.tcp.seq_num, base=16))],
-            "ack_num":[str(int(trame.tcp.ack_num, base = 16))],
+            "src":[str(int(trame.c4.port_src, base=16))],
+            "dst":[str(int(trame.c4.port_dst, base=16))],
+            "seq_num":[str(int(trame.c4.seq_num, base=16))],
+            "ack_num":[str(int(trame.c4.ack_num, base = 16))],
             "type":[get_tcp_types()]
             },
         "http":{
-            
-            "comm":[trame.http.string]
+            "comm":[trame.c7.string if trame.c7 is not None else '' for i in [0]]
             },
         }
     
@@ -169,15 +162,18 @@ def split_filter(filterstring):
                 specifier = f_split_split[1].strip()
             valeur = f_split[1].strip()
         filter.append((rem(couche), rem(specifier), rem(valeur)))
+       
     return filter
 
 def sort_filter(filter):
 
-    filtres = {"ip":{}, "tcp":{}, "http":{}}
+    filtres = {"ip":{}, "tcp":{}, "http":{}, '#':[]}
 
     ref_vals = {"ip": ["dst", "src"], 
                 "tcp": ["dst", "src"],
-                "http": []}
+                "http": []
+                }
+                
 
     def sous_filtre(kw, f):
         if f[1] is None:
@@ -192,6 +188,7 @@ def sort_filter(filter):
                         filtres[kw][i].append("both" + f[2])
                     else:
                         filtres[kw][i] = ["both" + f[2]]
+          
         elif f[1] is not None:
             if f[2] is None: 
                 return 0 # X -
@@ -204,18 +201,23 @@ def sort_filter(filter):
                     filtres[kw][f[1]] = [f[2]]
         return 1
 
+    def exception_number(f):
+        filtres['#'] = f[2].split(",")
     
     if filter == 0: 
         return 0
     if len(filter) == 0: 
         return 0
     for seul_filtre in filter:
-        try:
-            c = sous_filtre(seul_filtre[0], seul_filtre)
-        except KeyError:
-            return 0
-        if c == 0: 
-            return 0
+        if seul_filtre[0] == '#':
+            exception_number(seul_filtre)
+        else:
+            try:
+                c = sous_filtre(seul_filtre[0], seul_filtre)
+            except KeyError:
+                return 0
+            if c == 0: 
+                return 0
     return filtres
 
 
@@ -224,7 +226,7 @@ def save_to_file():
     count = eel.pass_file_count()()
     data = eel.pass_output_strings()()
     data_split = data.split("_end_of_line,")
-    print(data_split)
+    #print(data_split)
     for i in range(len(data_split)): 
         pass
         data_split[i] = data_split[i].replace("_end_of_line", "")
@@ -246,4 +248,4 @@ def save_to_file():
 
 
 
-eel.start("index.html", mode = "default")
+eel.start("index.html")#, mode = "default")

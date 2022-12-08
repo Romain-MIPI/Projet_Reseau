@@ -30,6 +30,7 @@ window.onload = () => {
         else{
             return filter.value;
         }}
+    
 
 
     function DeleteRows() {
@@ -76,8 +77,11 @@ window.onload = () => {
             let ip_array = [];
             let data_array = [];
             while (await eel.filter_output()() != "end_of_list"){
+
                 let data = await eel.filter_output()();
-                if(data != 0){
+                if(data !== 0){
+                    if (data['ip'] !== null){
+                        if (data['tcp'] !== null){
                     if(contains(ip_array, data['ip']['src']) == 0){
                         ip_array.push(data['ip']['src']);
 
@@ -103,6 +107,7 @@ window.onload = () => {
                     
                     let middle_pad;
                     let ip_msg;
+                    
                     if(dst < src){
                         
                         let dist = (((src - dst)*20) + (((src - dst) -1)*15)-5)
@@ -120,6 +125,7 @@ window.onload = () => {
                         //alert(src)
                         //alert(dst)
                         //alert(ip_array)
+                    
                     ip_msg = start_pad + data['tcp']['src'][0] + middle_pad + data['tcp']['dst'][0];}
                     
                     cell2.innerHTML = ip_msg
@@ -127,18 +133,19 @@ window.onload = () => {
                     cell4.innerHTML = data['tcp']['seq_num']    
                     cell5.innerHTML = data['tcp']['ack_num'];
                     cell6.innerHTML = data['http']['comm']; 
-                    let s = "\n"
+                    let s = "\n";
                     let line = i.toString() + s + ip_msg + s +  data['tcp']['type'] + s + data['tcp']['seq_num'] + s + data['tcp']['ack_num'] + data['http']['comm'][0].replace(/(\r\n|\n|\r)/gm, "\t") + "_end_of_line";
-                    data_array.push(line.toString())          
-                }
+                    data_array.push(line.toString());
+                }}}
                 
                 i = i + 1;
             }
-            let ip_s = '';
+            let ip_s = ''
             for(var j = 0; j < ip_array.length-1;j++){
                 ip_s += ip_array[j] + " ".repeat(20+ (15-ip_array[j][0].length));}
             ip_s += ip_array[ip_array.length -1]
             document.getElementById("showip").innerText = ip_s
+            
             let s =  "\n"
             output_array.push('#' + s + ip_s +s+ "type TCP" +s+ '# Seq' +s+ '# ACK' +s+ 'Commentaire'+ s+ "_end_of_line,")
             output_array += data_array
@@ -147,40 +154,4 @@ window.onload = () => {
         count += 1
 
     }
-/*
-
-    async function get_data(){
-    let d = await eel.load_data()();
-    //alert(d)
-    return d;}
-
-    function print_list(data){
-        data.forEach((dir)=>{
-            dir.forEach((item)=>{
-                let li = document.createElement("li");
-                li.innerText = item;
-                list.appendChild(li);})
-            }
-          );
-        }
-    
-    eel.expose(load_a);
-    function load_a(){
-        return j;
-    }
-  
-    let j = 1;
-    input.onchange = async (ev) => {
-    flow_data = await get_data();
-    document.getElementById("clicked").innerText = "yes";
-    print_list(flow_data);
-    
-    let res;
-    res  = await eel.double()()
-    //eel.checkval();
-    j = res;
-    eel.checkval();
-    document.getElementById("var").innerText = res;
-    document.getElementById("double").innerText = res;
-}*/
 }
