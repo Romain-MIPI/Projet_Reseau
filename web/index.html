@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Eel Example</title>
+    <title>Flow Graph</title>
     <style>
       h1{
         color: green;
@@ -24,10 +24,13 @@
     </style>
   </head>
 <body>
-    <div style="font-family:Consolas; overflow:scroll; width:1600*px;height:500px;">
+   <label>Adresse du fichier: </label><br>
+      <input type="text" id="file" value="Trame/TCP_2.txt && Trame/TCP.txt" style="color:rgb(0, 0, 0);"><br><br>
     <label>Filtre: </label><br>
     <input type="text" id="filter" placeholder="" style="color:rgb(0, 0, 0);">
     <button id="reset_button" onclick="document.getElementById('filter').value = ''">Supprimer filtre</button><br><br><br>
+    <div style="font-family:Consolas; overflow:scroll; width:1600*px;height:600px;">
+     
 
     <style>
           table, th, td {
@@ -44,11 +47,11 @@
      <div>
      <tr>
         <th style="background-color:#909090;">#</th>
-        <th id="showip" style="background-color:rgb(105, 144, 253);">adresse IP</th>
+        <th id="showip" style="background-color:rgb(105, 144, 253);">Adresse IP</th>
         <th style="background-color:#909090;">type TCP</th>
-        <th style="background-color:#ffffff;"># Seq</th>
-        <th style="background-color:#ffffff;"># ACK</th>
-        <th style="background-color:#ffffff;">Commentaire</th>
+        <th style="background-color:#909090;"># Seq</th>
+        <th style="background-color:#909090;"># ACK</th>
+        <th style="background-color:#909090;">Commentaire</th>
       </tr>
       </div> 
     </table> 

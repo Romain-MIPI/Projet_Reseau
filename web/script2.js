@@ -1,8 +1,16 @@
 
 window.onload = () => {
-    
+    let file = document.getElementById("file");
 
+    eel.expose(pass_file)
+    function pass_file(){
+        return file.value
+    }
     load_flow();
+
+    file.onchange = async (ev) =>{
+        load_flow();
+    }
     let output_array= [];
     let file_count = 1;
     let filter = document.getElementById("filter");

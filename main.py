@@ -9,7 +9,13 @@ path = os.path.abspath(os.path.join(os.curdir, 'web'))
 print(path)
 eel.init(path)
 
-list_trame = input.decode_trame("./Trame/TCP.txt") + input.decode_trame("./Trame/TCP_2.txt")
+
+@eel.expose
+def init_file():
+    list_trame = []
+    for i in eel.pass_file()().split('&&'):
+        list_trame += input.decode_trame(i.strip())
+    return list_trame
 
 
 
@@ -33,6 +39,7 @@ def validate_filter():
 
 @eel.expose
 def filter_output():
+    list_trame= init_file()
     i = eel.pass_i()()
     if i >= len(list_trame):
         return "end_of_list"
@@ -77,9 +84,11 @@ def filter_output():
                                             return 0
                                     
                             else: 
-                                if d[couche][specifier] not in f[couche][specifier]:
-                                    print("fourth out")
-                                    return 0
+                                for i in f[couche][specifier]:
+                                    if i not in d[couche][specifier]:
+                                        print(i, f[couche][specifier])
+                                        print("fourth out")
+                                        return 0
                       
         return d
         
@@ -104,7 +113,7 @@ def dict_from_trame(trame):
             "dst":[str(int(trame.c4.port_dst, base=16))],
             "seq_num":[str(int(trame.c4.seq_num, base=16))],
             "ack_num":[str(int(trame.c4.ack_num, base = 16))],
-            "type":[get_tcp_types()]
+            "type":get_tcp_types()
             },
         "http":{
             "comm":[trame.c7.string if trame.c7 is not None else '' for i in [0]]
@@ -202,7 +211,10 @@ def sort_filter(filter):
         return 1
 
     def exception_number(f):
-        filtres['#'] = f[2].split(",")
+        if len(f[2]) >1: 
+            filtres['#'] = [i.strip() for i in f[2].split(",")]
+        else: 
+            filtres['#'] = f[2]
     
     if filter == 0: 
         return 0
@@ -248,4 +260,4 @@ def save_to_file():
 
 
 
-eel.start("index.html")#, mode = "default")
+eel.start("index.html", mode = "default")
